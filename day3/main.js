@@ -357,3 +357,40 @@ const prioritiesPart2 = badges.map((badge) => convertToPriority(badge));
 const resultPart2 = sumIt(prioritiesPart2);
 
 console.log(resultPart2);
+
+// PART 1: set + intersection
+
+const sets = splicedRucksacks.map((item) => [...item.map((x) => new Set(x))]);
+
+const intersection = (set1, set2) => {
+  const commonItem = [...set1].filter((item) => set2.has(item));
+  return commonItem[0];
+};
+
+const commonItems = sets.map((set) => intersection(...set));
+const prioritiesPart1_2 = commonItems.map((item) => convertToPriority(item));
+const resultPart1_2 = sumIt(prioritiesPart1_2);
+console.log(resultPart1_2);
+
+// PART 2: set + intersection
+
+const groupsSet = groups.map((group) => [...group.map((x) => new Set(x))]);
+
+// keep set1 and set2 to be sure to have at least 2 sets
+const intersectionPart2_2 = (set1, set2, ...sets) => {
+  const intersectionFirstSets = [...set1].filter((item) => set2.has(item));
+  const commonItem = sets.reduce(
+    (acc, cur) => acc.filter((item) => cur.has(item)),
+    intersectionFirstSets
+  );
+  return commonItem[0];
+};
+const badgesPart2_2 = groupsSet.map((group) => intersectionPart2_2(...group));
+
+const prioritiesPart2_2 = badgesPart2_2.map((badge) =>
+  convertToPriority(badge)
+);
+
+const resultPart2_2 = sumIt(prioritiesPart2_2);
+
+console.log(resultPart2_2);
