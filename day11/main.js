@@ -88,10 +88,12 @@ const notes = input.split("\n\n").map((monkey) => {
     items: items.match(/\d+/g).map(Number),
     operation,
     test: test + ifTrue + ifFalse,
+    divider: +test.split(" ").slice(-1),
   };
 });
 
-const worryDivider = 3;
+const worryDivider = 1;
+const modulo = notes.reduce((acc, cur) => acc * cur.divider, 1);
 
 const getOperationFn = (operation) => {
   const splitedString = operation.split(" ");
@@ -105,14 +107,14 @@ const getOperationFn = (operation) => {
           ((operand1 === "old" ? inspectedItem : +operand1) +
             (operand2 === "old" ? inspectedItem : +operand2)) /
             worryDivider
-        );
+        ) % modulo;
     case "*":
       return (inspectedItem) =>
         Math.floor(
           ((operand1 === "old" ? inspectedItem : +operand1) *
             (operand2 === "old" ? inspectedItem : +operand2)) /
             worryDivider
-        );
+        ) % modulo;
 
     default:
       throw new Error("operator not supported");
@@ -155,11 +157,9 @@ notes.forEach((monkey) => {
   monkeys.push(buildMonkey(monkey, monkeys));
 });
 
-for (let i = 0; i < 20; i++) {
+for (let i = 0; i < 10000; i++) {
   monkeys.forEach((monkey) => monkey.handleItems());
 }
-
-console.log(monkeys);
 
 const monkeyBusinessLevel = monkeys
   .map((monkey) => monkey.nbOfInspectedItem)
