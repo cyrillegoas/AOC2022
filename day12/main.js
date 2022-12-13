@@ -65,16 +65,16 @@ const createNode = (elevationLevel, x, y) => ({
   },
 });
 
-const start = {};
-
-const map = input.split("\n").map((line, y) =>
-  line.split("").map((elevationLevel, x) => {
-    if (elevationLevel === "S") {
-      start.x = x;
-      start.y = y;
-    }
-    return createNode(elevationLevel, x, y);
-  })
+const startingPoints = input.split("\n").reduce(
+  (acc, cur, y) => [
+    ...acc,
+    ...cur.split("").reduce((acc, cur, x) => {
+      const accCopy = [...acc];
+      if (cur === "S" || cur === "a") accCopy.push({ x, y });
+      return accCopy;
+    }, []),
+  ],
+  []
 );
 
 const getAdjacentNodes = (matrix, node) => {
@@ -97,25 +97,40 @@ const processNodes = (origin, adjacentNodes, queue) => {
       node.visiteNode(origin);
       queue.push(node);
       if (node.isEnd) {
-        endCoo = [node.y, node.x];
+        endCoo = { y: node.y, x: node.x };
       }
     }
   });
   return endCoo;
 };
 
-const findShortestPath = (start, matrix) => {
-  const queue = [matrix[start.y][start.x]];
+const findShortestPath = (start, input) => {
+  const map = input
+    .split("\n")
+    .map((line, y) =>
+      line
+        .split("")
+        .map((elevationLevel, x) => createNode(elevationLevel, x, y))
+    );
+
+  const queue = [map[start.y][start.x]];
   let end = null;
 
   while (queue.length) {
     const node = queue.shift();
-    const adjacentNodes = getAdjacentNodes(matrix, node);
+    const adjacentNodes = getAdjacentNodes(map, node);
     end = processNodes(node, adjacentNodes, queue);
     if (end) break;
   }
-
-  return matrix[end[0]][end[1]].range;
+  if (end) return map[end.y][end.x].range;
 };
 
-console.log(findShortestPath(start, map));
+const pathRanges = startingPoints.map((start) =>
+  findShortestPath(start, input)
+);
+
+const shortestPathFromLowestElevation = pathRanges
+  .filter((range) => range != undefined)
+  .sort((a, b) => a - b);
+
+console.log(shortestPathFromLowestElevation[0]);
